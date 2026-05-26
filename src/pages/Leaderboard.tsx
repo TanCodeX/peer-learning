@@ -120,6 +120,7 @@ const Leaderboard = () => {
         // Fetch user's exact rank via RPC to avoid pulling data
         const { data: rpcRank } = await supabase.rpc("get_user_rank", {
           p_user_id: user.id,
+          p_filter: filter,
         });
 
         setMyRank(rpcRank || 0);
