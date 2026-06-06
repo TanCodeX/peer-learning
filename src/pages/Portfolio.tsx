@@ -491,6 +491,7 @@ const Portfolio = () => {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-slate-300 hover:bg-white/10 hover:text-white"
+                        aria-label={`Remove project ${index + 1}`}
                         onClick={() => setForm({ ...form, projects: form.projects.filter((_, itemIndex) => itemIndex !== index) })}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -551,6 +552,7 @@ const Portfolio = () => {
                         size="icon"
                         variant="ghost"
                         className="h-8 w-8 text-slate-300 hover:bg-white/10 hover:text-white"
+                        aria-label={`Remove achievement ${index + 1}`}
                         onClick={() => setForm({ ...form, achievements: form.achievements.filter((_, itemIndex) => itemIndex !== index) })}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -591,7 +593,7 @@ const Portfolio = () => {
                 <p className="text-xs uppercase tracking-wide text-slate-500">Shareable URL</p>
                 <div className="mt-2 flex items-center gap-2">
                   <p className="min-w-0 flex-1 truncate text-sm text-cyan-200">{publicUrl || "Set a slug to create a URL"}</p>
-                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/10" onClick={copyShareLink}>
+                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 text-white hover:bg-white/10" aria-label="Copy shareable link" onClick={copyShareLink}>
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
