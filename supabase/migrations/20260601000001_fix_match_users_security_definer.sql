@@ -93,6 +93,8 @@ REVOKE ALL ON FUNCTION public.match_users(
     text, text[], text[], text[], text[], text[], int, int
 ) FROM PUBLIC;
 
+-- 8 parameters: target_email, target_skills, target_related_skills,
+-- target_interests, target_teach, target_learn, page_limit, page_offset
 GRANT EXECUTE ON FUNCTION public.match_users(
-    text, text[], text[], text[], text[], int, int
-) TO authenticated, service_role;
+    text, text[], text[], text[], text[], text[], int, int
+) TO authenticated;
