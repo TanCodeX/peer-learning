@@ -25,12 +25,14 @@ export const dispatchPushNotifications = async (req, res, next) => {
     webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
     const supabase = getSupabaseClient();
 
+    // Atomically claim a batch of pending notifications so concurrent invocations
+    // cannot double-deliver the same notification (race-condition prevention).
+    const claimedAt = new Date().toISOString();
     const { data: notifications, error } = await supabase
       .from("notifications")
-      .select("id,user_id,title,body,action_url")
-      .is("push_sent_at", null)
-      .order("created_at", { ascending: true })
-      .limit(100);
+      .update({ push_claimed_at: claimedAt })
+      .is("push_claimed_at", null)
+      .select("id,user_id,title,body,action_url");
 
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -40,16 +42,31 @@ export const dispatchPushNotifications = async (req, res, next) => {
       return res.json({ sent: 0, processed: 0 });
     }
 
+    // Batch-fetch all push subscriptions for the claimed notifications in one query.
+    const userIds = [...new Set(notifications.map((n) => n.user_id))];
+    const { data: allSubscriptions, error: subError } = await supabase
+      .from("push_subscriptions")
+      .select("user_id,endpoint,p256dh,auth")
+      .in("user_id", userIds);
+
+    if (subError) {
+      return res.status(500).json({ error: subError.message });
+    }
+
+    // Group subscriptions by user_id for O(1) lookup per notification.
+    const subsByUser = {};
+    for (const sub of allSubscriptions || []) {
+      if (!subsByUser[sub.user_id]) subsByUser[sub.user_id] = [];
+      subsByUser[sub.user_id].push(sub);
+    }
+
     let sent = 0;
 
     for (const notification of notifications) {
-      const { data: subscriptions } = await supabase
-        .from("push_subscriptions")
-        .select("endpoint,p256dh,auth")
-        .eq("user_id", notification.user_id);
+      const subscriptions = subsByUser[notification.user_id] || [];
 
       const pushResults = await Promise.allSettled(
-        (subscriptions || []).map((subscription) =>
+        subscriptions.map((subscription) =>
           webpush.sendNotification(
             {
               endpoint: subscription.endpoint,
