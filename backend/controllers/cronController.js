@@ -304,3 +304,22 @@ export const sendMentorshipCheckinReminders = async (req, res, next) => {
     next(error);
   }
 };
+
+export const resetWeeklyFocusTime = async (req, res, next) => {
+  try {
+    const supabase = getSupabaseClient();
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ focus_time_this_week: 0 })
+      .neq("focus_time_this_week", 0);
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({ reset: true });
+  } catch (error) {
+    next(error);
+  }
+};
