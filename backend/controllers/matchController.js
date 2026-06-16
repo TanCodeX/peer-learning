@@ -152,9 +152,8 @@ export const getSupabaseDiscover = async (req, res) => {
     const search = req.query.search || "";
     const filter = req.query.filter || "All";
     const page = Math.min(Math.max(1, parseInt(req.query.page, 10) || 1), 1000);
-    const limit = Math.min(parseInt(req.query.limit, 10) || 100, 100);
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit, 10) || 100), 100);
     const skip = (page - 1) * limit;
-
     const supabaseAdmin = getSupabaseAdmin();
 
     // Fetch only the columns used for compatibility scoring so we avoid

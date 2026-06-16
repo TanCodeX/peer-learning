@@ -150,27 +150,36 @@ describe("GET /api/match/supabase-discover — page validation", () => {
   });
 
   it("passes validation when page=1000 (boundary)", async () => {
-    // Set up Supabase to return a valid profile so the controller completes
-    mockSingle.mockResolvedValueOnce({ data: { skills: [], learning_goals: [], interests: [], learn_subjects: [], teach_subjects: [], learning_style: null, preferred_language: null, timezone: null }, error: null });
-    mockQueryResult.mockReturnValueOnce({ data: PEER_PROFILES, error: null });
+    mockSupabase.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        neq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+        data: { skills: [], learning_goals: [], interests: [], learn_subjects: [], teach_subjects: [], learning_style: null, preferred_language: null, timezone: null },
+        error: null,
+        }),
+        range: vi.fn().mockResolvedValue({ data: PEER_PROFILES, error: null }),
+    }));
 
-    const res = await request(app)
-      .get("/api/match/supabase-discover")
-      .query({ page: "1000" });
+    const res = await request(app).get("/api/match/supabase-discover").query({ page: "1000" });
+    expect(res.status).toBe(200);
+    });
 
-    // 200 or 404 (if mock chain mismatch) — either way NOT 400
-    expect(res.status).not.toBe(400);
-  });
+    it("passes validation when page is absent (defaults to page 1)", async () => {
+    mockSupabase.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        neq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+        data: { skills: [], learning_goals: [], interests: [], learn_subjects: [], teach_subjects: [], learning_style: null, preferred_language: null, timezone: null },
+        error: null,
+        }),
+        range: vi.fn().mockResolvedValue({ data: PEER_PROFILES, error: null }),
+    }));
 
-  it("passes validation when page is absent (defaults to page 1)", async () => {
-    mockSingle.mockResolvedValueOnce({ data: { skills: [], learning_goals: [], interests: [], learn_subjects: [], teach_subjects: [], learning_style: null, preferred_language: null, timezone: null }, error: null });
-    mockQueryResult.mockReturnValueOnce({ data: PEER_PROFILES, error: null });
-
-    const res = await request(app)
-      .get("/api/match/supabase-discover");
-
-    expect(res.status).not.toBe(400);
-  });
+    const res = await request(app).get("/api/match/supabase-discover");
+    expect(res.status).toBe(200);
+    });
 });
 
 // ── Controller unit tests: correct skip calculation ───────────────────────────────
