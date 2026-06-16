@@ -7,10 +7,10 @@ import { aiSchemas } from "../validation/schemas.js";
 import { ALLOWED_INTERVIEW_ROLES } from "../validation/schemas.js";
 import { errorHandler } from "../middlewares/errorHandler.js";
 
-afterEach(() => {
-  vi.restoreAllMocks();
-  vi.unstubAllEnvs();
-});
+describe("POST /mock-interview/chat — all allowed roles are accepted", () => {
+  beforeEach(() => {
+    vi.stubEnv("OPENROUTER_API_KEY", "test-key-949");
+  });
 
 // ── Shared app fixture ─────────────────────────────────────────────────────────────
 let app;
