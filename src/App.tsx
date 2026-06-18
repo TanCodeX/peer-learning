@@ -15,8 +15,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import ProtectedMentorRoute from "@/components/ProtectedMentorRoute";
 
 // Global layout components – rendered on every page, keep static
-import Navbar from "./components/Navbar";
-import Chatbot from "./components/Chatbot";
+import Navbar from "./components/Navbar/Navbar";
+import Chatbot from "./components/Chatbot/Chatbot";
 import StreakBadge from "./components/StreakBadge";
 import CookieConsentBanner from "./components/CookieConsentBanner";
 import FloatingAI from "./components/FloatingAI";
@@ -54,7 +54,7 @@ const AuthCallback = React.lazy(() => import("./pages/AuthCallback"));
 const PublicPortfolio = React.lazy(() => import("./pages/PublicPortfolio"));
 const ResourceHub = React.lazy(() => import("@/pages/ResourceHub"));
 const StudyRooms = React.lazy(() => import("./components/StudyRooms"));
-const Room = React.lazy(() => import("./components/Room"));
+const Room = React.lazy(() => import("./components/Room/Room"));
 const Contact = React.lazy(() => import("./pages/Contact"));
 const PrivacyPolicy = React.lazy(() => import("./pages/privacy"));
 const CookiesPolicy = React.lazy(() => import("./pages/cookies-policy"));
