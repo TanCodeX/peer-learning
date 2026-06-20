@@ -110,6 +110,7 @@ const Discover = () => {
     useState<any[]>([]);
 
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -159,6 +160,10 @@ const Discover = () => {
         }
       } catch (err) {
         console.error("Error fetching initial data:", err);
+
+        setError(
+          "Unable to load your profile information. Please refresh the page and try again."
+        );
       }
     };
 
@@ -172,6 +177,7 @@ const Discover = () => {
       if (!currentUser) return;
       
       setLoading(true);
+      setError("");
       try {
         const searchParams = new URLSearchParams();
         if (debouncedSearch.trim()) searchParams.append("search", debouncedSearch.trim());
@@ -194,6 +200,10 @@ const Discover = () => {
         }
       } catch (err) {
         console.error("Error fetching peers:", err);
+
+        setError(
+          "Unable to load peer recommendations right now. Please check your connection and try again."
+        );
       } finally {
         setLoading(false);
       }
@@ -370,7 +380,7 @@ const Discover = () => {
           </h2>
         </div>
 
-        {/* LOADING */}
+        {/* LOADING / ERROR */}
         {loading ? (
           <div className="grid md:grid-cols-3 gap-6">
             {[1, 2, 3].map((item) => (
@@ -396,6 +406,25 @@ const Discover = () => {
                 <div className="h-12 rounded-2xl bg-white/10" />
               </div>
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-24">
+            <Users
+              size={70}
+              className="mx-auto text-red-400 mb-6"
+            />
+
+            <h2 className="text-3xl font-bold mb-3">
+              Something went wrong
+            </h2>
+
+            <p className="text-gray-400 max-w-lg mx-auto">
+              {error}
+            </p>
+
+            <p className="text-gray-500 text-sm mt-3">
+              Refresh the page to retry loading recommendations.
+            </p>
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="text-center py-24">
