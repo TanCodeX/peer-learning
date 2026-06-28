@@ -59,7 +59,7 @@ A modern peer-to-peer learning platform where students can connect, collaborate,
 - [🚀 Deployment](#%F0%9F%9A%80-deployment-1)
     + [Build Command](#build-command)
 - [🛠️ Troubleshooting](#%F0%9F%9B%A0%EF%B8%8F-troubleshooting)
-- [🌟 Future Enhancements](#%F0%9F%8C%9F-future-enhancements)
+- [🗺️ Feature Roadmap](#%F0%9F%97%BA%EF%B8%8F-feature-roadmap)
 - [🤝 Contributing](#%F0%9F%A4%9D-contributing)
   * [Steps to Contribute](#steps-to-contribute)
 - [💖 Contributors](#%F0%9F%92%96-contributors)
