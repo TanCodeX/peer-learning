@@ -321,7 +321,7 @@ peer-learning-platform/
 └── README.md                # Project documentation
 ```
 
-### 📝 Where should you make changes?
+## 📝 Where should you make changes?
 
 The table below helps contributors quickly locate the correct directory based on the feature they want to work on.
 
@@ -446,7 +446,7 @@ Code Review
 Merge into Main Branch
 ```
 
-### Development Process
+## Development Process
 
 1. Fork the repository.
 2. Clone it to your local machine.
