@@ -330,7 +330,10 @@ CREATE POLICY "Users can insert peer connection requests"
   ON public.peer_connections FOR INSERT WITH CHECK (auth.uid() = sender_id);
 
 CREATE POLICY "Users can update peer connections" 
-  ON public.peer_connections FOR UPDATE USING (auth.uid() = receiver_id);
+  ON public.peer_connections FOR UPDATE USING (auth.uid() = receiver_id) WITH CHECK (
+    auth.uid() = receiver_id
+    AND status IN ('accepted', 'rejected')
+  );
 
 CREATE POLICY "Users can delete peer connections" 
   ON public.peer_connections FOR DELETE USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
