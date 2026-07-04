@@ -19,12 +19,12 @@ type Report = {
 };
 
 const ROLES = [
-  "Senior Frontend Engineer",
-  "Backend Developer",
+  "Frontend Engineer",
+  "Backend Engineer",
   "Full Stack Engineer",
   "Data Scientist",
   "Product Manager",
-  "HR Manager (Behavioral)",
+  "Engineering Manager",
 ];
 
 const getAccessToken = async (): Promise<string | null> => {
