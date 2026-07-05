@@ -50,11 +50,17 @@ const Profile = () => {
 
       if (!user) return;
 
-      const { data: rawProfileData } = await supabase
+      const { data: rawProfileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
         .single();
+
+      if (profileError) {
+        console.error("Failed to fetch profile:", profileError);
+        toast.error("Failed to load profile data. Please refresh the page to try again.");
+        return;
+      }
 
       const profileData = rawProfileData as any;
 

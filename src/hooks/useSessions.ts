@@ -105,11 +105,17 @@ export function useSessions(user: any) {
     if (!selectedSession) return;
 
     const fetchMessages = async () => {
-      const { data } = await (supabase as any)
+      const { data, error } = await (supabase as any)
         .from("messages")
         .select("*")
         .eq("session_id", selectedSession.id)
         .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Failed to fetch messages:", error);
+        toast({ title: "Error", description: "Failed to load messages.", variant: "destructive" });
+        return;
+      }
 
       setMessages(data || []);
     };
