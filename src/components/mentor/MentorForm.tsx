@@ -41,6 +41,7 @@ export default function MentorForm() {
       (step === 2 && validateExperience()) ||
       (step === 3 && validateMentorship());
     if (isValid) setError("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, step]);
 
   useEffect(() => {
