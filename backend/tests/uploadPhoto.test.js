@@ -10,7 +10,7 @@ import { errorHandler } from "../middlewares/errorHandler.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const profilesUploadDir = path.resolve(__dirname, "../uploads/profiles");
+const profilesUploadDir = path.resolve(__dirname, "../../uploads/profiles");
 
 // ── Supabase stub (requireAuth fast-path won't reach it, but the import needs it) ──
 vi.mock("../utils/supabase.js", () => ({
