@@ -16,9 +16,12 @@ const profilesUploadDir = path.resolve(__dirname, "../../uploads/profiles");
 // Extended with a storage stub so the /api/upload suite below (uploadController.js)
 // can assert on the path passed to storage.upload().
 const { storageUploadMock, storageFromMock } = vi.hoisted(() => {
-  const storageUploadMock = vi.fn(() =>
-    Promise.resolve({ data: { path: "mock-path" }, error: null })
-  );
+  const storageUploadMock = vi.fn((path, stream) => {
+    if (stream && typeof stream.destroy === 'function') {
+      stream.destroy();
+    }
+    return Promise.resolve({ data: { path: "mock-path" }, error: null });
+  });
   const storageFromMock = vi.fn(() => ({
     upload: storageUploadMock,
     getPublicUrl: (filePath) => ({
