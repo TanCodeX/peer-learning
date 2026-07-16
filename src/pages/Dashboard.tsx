@@ -240,7 +240,7 @@ const Dashboard = () => {
       const { data, error } = await supabase
         .from("sessions")
         .select("*")
-        .eq("status", "upcoming")
+        .eq("status", "scheduled")
         .or(`mentor_id.eq.${user.id},student_id.eq.${user.id}`)
         .limit(4);
 
