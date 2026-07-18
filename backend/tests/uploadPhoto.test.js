@@ -18,8 +18,13 @@ const profilesUploadDir = path.resolve(__dirname, "../../uploads/profiles");
 // can assert on the path passed to storage.upload().
 const { storageUploadMock, storageFromMock } = vi.hoisted(() => {
   const storageUploadMock = vi.fn((path, stream) => {
-    if (stream && typeof stream.destroy === 'function') {
-      stream.destroy();
+    if (stream) {
+      if (typeof stream.on === 'function') {
+        stream.on('error', () => {}); // swallow unhandled stream errors in mock
+      }
+      if (typeof stream.destroy === 'function') {
+        stream.destroy();
+      }
     }
     return Promise.resolve({ data: { path: "mock-path" }, error: null });
   });
