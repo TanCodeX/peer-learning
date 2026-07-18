@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,14 +24,16 @@ export function useSkillEndorsements({
   skills,
 }: UseSkillEndorsementsOptions): UseSkillEndorsementsReturn {
   const { toast } = useToast();
+  const skillsKey = JSON.stringify(skills);
+  const stableSkills = useMemo(() => JSON.parse(skillsKey) as string[], [skillsKey]);
 
   const [endorsements, setEndorsements] = useState<Record<string, SkillEndorsementData>>(() =>
-    Object.fromEntries(skills.map((s) => [s, { count: 0, hasEndorsed: false }]))
+    Object.fromEntries(stableSkills.map((s) => [s, { count: 0, hasEndorsed: false }]))
   );
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [pendingSkills, setPendingSkills] = useState<Set<string>>(new Set());
+  const pendingSkillsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -41,7 +43,7 @@ export function useSkillEndorsements({
   }, []);
 
   const fetchEndorsements = useCallback(async () => {
-    if (!skills.length) {
+    if (!stableSkills.length) {
       setLoading(false);
       return;
     }
@@ -51,12 +53,12 @@ export function useSkillEndorsements({
         .from("skill_endorsements")
         .select("skill, endorser_id")
         .eq("endorsed_user_id", profileUserId)
-        .in("skill", skills);
+        .in("skill", stableSkills);
 
       if (error) throw error;
 
       const map: Record<string, SkillEndorsementData> = Object.fromEntries(
-        skills.map((s) => [s, { count: 0, hasEndorsed: false }])
+        stableSkills.map((s) => [s, { count: 0, hasEndorsed: false }])
       );
 
       for (const row of data ?? []) {
@@ -73,7 +75,7 @@ export function useSkillEndorsements({
     } finally {
       setLoading(false);
     }
-  }, [profileUserId, skills, currentUserId]);
+  }, [profileUserId, stableSkills, currentUserId]);
 
   useEffect(() => {
     if (authReady) fetchEndorsements();
@@ -99,12 +101,13 @@ export function useSkillEndorsements({
         return;
       }
 
-      if (pendingSkills.has(skill)) return;
-      setPendingSkills((prev) => new Set(prev).add(skill));
+      if (pendingSkillsRef.current.has(skill)) return;
+      pendingSkillsRef.current.add(skill);
 
       const current = endorsements[skill];
       const isRemoving = current?.hasEndorsed ?? false;
 
+      // Optimistically update UI using functional update to preserve other skill updates
       setEndorsements((prev) => ({
         ...prev,
         [skill]: {
@@ -136,6 +139,7 @@ export function useSkillEndorsements({
         }
       } catch (err) {
         console.error("[useSkillEndorsements] toggle error:", err);
+        // Revert the optimistic update on error
         setEndorsements((prev) => ({
           ...prev,
           [skill]: {
@@ -149,14 +153,10 @@ export function useSkillEndorsements({
           variant: "destructive",
         });
       } finally {
-        setPendingSkills((prev) => {
-          const next = new Set(prev);
-          next.delete(skill);
-          return next;
-        });
+        pendingSkillsRef.current.delete(skill);
       }
     },
-    [currentUserId, profileUserId, endorsements, toast, pendingSkills]
+    [currentUserId, profileUserId, endorsements, toast]
   );
 
   return { endorsements, loading, toggleEndorsement, currentUserId };
