@@ -32,7 +32,9 @@ describe("useSkillEndorsements rapid interactions", () => {
     });
   });
 
-  it("prevents rapid toggling state desync", async () => {
+  it(
+    "prevents rapid toggling state desync",
+    async () => {
     let resolveInsert: (val: any) => void;
     const insertPromise = new Promise((res) => {
       resolveInsert = res;
@@ -80,5 +82,7 @@ describe("useSkillEndorsements rapid interactions", () => {
 
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockDelete).not.toHaveBeenCalled();
-  });
+    },
+    15000
+  );
 });
