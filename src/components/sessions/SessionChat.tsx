@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Send, Video, Sparkles } from "lucide-react";
+import { Send, Video, Sparkles, BellOff, Bell } from "lucide-react";
 import { LiveCodeRunner } from "@/components/studyroom/LiveCodeRunner";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
@@ -14,6 +14,8 @@ type SessionChatProps = {
   sessionSummary: any;
   summaryLoading: boolean;
   studyTime: number;
+  isFocusMode: boolean;
+  setIsFocusMode: (val: boolean) => void;
   sendMessage: (msg: string) => void;
   sendTypingEvent: () => void;
   handleLeaveVideo: () => void;
@@ -32,6 +34,8 @@ export function SessionChat({
   sessionSummary,
   summaryLoading,
   studyTime,
+  isFocusMode,
+  setIsFocusMode,
   sendMessage,
   sendTypingEvent,
   handleLeaveVideo,
@@ -73,12 +77,27 @@ export function SessionChat({
                     className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm border w-fit ${
                       userStatus === "Active"
                         ? "bg-cyan-500/10 border-cyan-400/20 text-cyan-300"
+                        : userStatus === "Busy"
+                        ? "bg-red-500/10 border-red-400/20 text-red-300"
                         : "bg-yellow-500/10 border-yellow-400/20 text-yellow-300"
                     }`}
                   >
-                    {userStatus === "Active" ? "⚡" : "🌙"}
+                    {userStatus === "Active" ? "⚡ " : userStatus === "Busy" ? "⛔ " : "🌙 "}
                     {userStatus}
                   </div>
+
+                  <button
+                    onClick={() => setIsFocusMode(!isFocusMode)}
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm border w-fit transition-colors ${
+                      isFocusMode
+                        ? "bg-red-500/10 border-red-400/20 text-red-300"
+                        : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                    }`}
+                    title={isFocusMode ? "Disable Focus Mode" : "Enable Focus Mode (Sets status to Busy and silences notifications)"}
+                  >
+                    {isFocusMode ? <BellOff size={14} /> : <Bell size={14} />}
+                    Focus Mode
+                  </button>
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
