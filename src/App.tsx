@@ -120,7 +120,8 @@ function AppContent() {
       <MouseSparkles />
       <CookieConsentBanner />
 
-      <Routes>
+      <ErrorBoundary>
+        <Routes>
           <Route
             path="/"
             element={user ? <Navigate to="/dashboard" replace /> : <WithNav><Index /></WithNav>}
@@ -395,7 +396,8 @@ function AppContent() {
           />
 
           <Route path="*" element={<NotFound />} />
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
 
       {user && (
         <>
