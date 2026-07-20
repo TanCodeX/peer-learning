@@ -7,5 +7,3 @@ export type Json =
   | Json[]
 
 export type Database = any;
-
-
