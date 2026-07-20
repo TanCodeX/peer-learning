@@ -49,22 +49,7 @@ function mapDbRowToTestimonial(row: {
   };
 }
 
-export function Testimonials() {
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const testimonialAutoScrollRef = useRef<number | null>(null);
-  const testimonialPausedRef = useRef(false);
-  const { user } = useAuth();
-
-  const [name, setName] = useState("");
-  const [rating, setRating] = useState(0);
-  const [review, setReview] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [liveTestimonials, setLiveTestimonials] = useState<Testimonial[]>([]);
-
-  // Seeded fallback content — always shown so the carousel never looks empty
-  // while real submissions are still trickling in.
-  const seedTestimonials: Testimonial[] = [
+const seedTestimonials: Testimonial[] = [
     {
       text: "PeerLearn helped me crack my first internship interview.",
       name: "Aisha Khan",
@@ -126,6 +111,23 @@ export function Testimonials() {
       outcome: "First Open Source Contribution",
     },
   ];
+
+export function Testimonials() {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const testimonialAutoScrollRef = useRef<number | null>(null);
+  const testimonialPausedRef = useRef(false);
+  const { user } = useAuth();
+
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [liveTestimonials, setLiveTestimonials] = useState<Testimonial[]>([]);
+
+  // Seeded fallback content — always shown so the carousel never looks empty
+  // while real submissions are still trickling in.
+  
 
   const fetchTestimonials = useCallback(async () => {
     const { data, error } = await supabase
