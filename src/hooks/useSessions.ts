@@ -276,7 +276,7 @@ export function useSessions(user: any) {
   description: err.message || "Failed to join session."
 });
     }
-  }, [user, awardXP, toast]);
+  }, [user, awardXP]);
 
   const sendMessage = useCallback(async (msgText: string) => {
     if (!msgText.trim() || !selectedSession) return;
@@ -311,7 +311,7 @@ export function useSessions(user: any) {
   description: err.message || "An unexpected error occurred."
 });
     }
-  }, [selectedSession, user, toast]);
+  }, [selectedSession, user]);
 
   const sendTypingEvent = useCallback(() => {
     if (channelRef.current) {

@@ -56,7 +56,7 @@ export default function ReviewSubmission() {
     };
 
     fetchDetails();
-  }, [id, user, navigate, toast]);
+  }, [id, user, navigate]);
 
   const handleFeedbackSubmit = async () => {
     if (!user || !id || !feedback.trim()) return;
@@ -102,8 +102,7 @@ export default function ReviewSubmission() {
           .from("peer_submissions")
           .select("status")
           .eq("id", id)
-          .single(),
-      ]);
+          .single()]);
 
     if (reviewFetchError) {
       // The review was created successfully (the RPC returned it); this is

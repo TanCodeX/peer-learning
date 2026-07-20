@@ -121,7 +121,7 @@ export function useCreateSession({ onSuccess, setOpen }: UseCreateSessionProps) 
     } finally {
       setIsLoading(false);
     }
-  }, [user, resolveDurationMinutes, form, toast, awardXP, onSuccess, setOpen]);
+  }, [user, resolveDurationMinutes, form, awardXP, onSuccess, setOpen]);
 
   return {
     form,

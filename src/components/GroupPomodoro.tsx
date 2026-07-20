@@ -103,7 +103,7 @@ export default memo(function GroupPomodoro({ roomId, creatorId }: GroupPomodoroP
       active = false;
       supabase.removeChannel(channel);
     };
-  }, [roomId, toast]);
+  }, [roomId]);
 
   const clampDurations = useCallback(() => ({
     work: Math.min(WORK_MAX, Math.max(WORK_MIN, Math.floor(workDuration))),
@@ -139,7 +139,7 @@ export default memo(function GroupPomodoro({ roomId, creatorId }: GroupPomodoroP
   description: err.message || 'Could not sync the timer. Please try again.'
 });
     }
-  }, [clampDurations, roomId, toast]);
+  }, [clampDurations, roomId]);
 
   const handleTimerComplete = useCallback(async () => {
     if (!isCreator) return;
@@ -155,7 +155,7 @@ export default memo(function GroupPomodoro({ roomId, creatorId }: GroupPomodoroP
 });
       await setGroupTimer('idle');
     }
-  }, [isCreator, timerState, setGroupTimer, toast]);
+  }, [isCreator, timerState, setGroupTimer]);
 
   // Countdown logic
   useEffect(() => {

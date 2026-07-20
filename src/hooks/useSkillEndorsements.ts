@@ -150,7 +150,7 @@ export function useSkillEndorsements({
         pendingSkillsRef.current.delete(skill);
       }
     },
-    [currentUserId, profileUserId, endorsements, toast]
+    [currentUserId, profileUserId, endorsements]
   );
 
   return { endorsements, loading, toggleEndorsement, currentUserId };

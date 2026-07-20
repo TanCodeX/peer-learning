@@ -72,7 +72,7 @@ export default function FocusTimer() {
       setIsActive(false);
       setTimeLeft(workDuration * 60);
     }
-  }, [isBreak, workDuration, breakDuration, focusTimeThisWeek, user, toast]);
+  }, [isBreak, workDuration, breakDuration, focusTimeThisWeek, user]);
 
   // Timer logic
   useEffect(() => {

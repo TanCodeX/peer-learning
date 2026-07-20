@@ -143,8 +143,7 @@ const Portfolio = () => {
             .from("portfolio_profiles")
             .select("*")
             .eq("profile_id", user.id)
-            .maybeSingle(),
-        ]);
+            .maybeSingle()]);
 
         clearTimeout(timeout);
         if (!isMounted) return;
@@ -210,7 +209,7 @@ const Portfolio = () => {
       isMounted = false;
       clearTimeout(timeout);
     };
-  }, [user, toast]);
+  }, [user]);
 
   const updateAchievement = (index: number, achievement: Achievement) => {
     setForm((current) => ({
