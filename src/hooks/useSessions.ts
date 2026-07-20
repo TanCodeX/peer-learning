@@ -186,7 +186,7 @@ export function useSessions(user: any) {
     return () => {
       supabase.removeChannel(roomChannel);
     };
-  }, [selectedSession, user]);
+  }, [selectedSession, user, toast]);
 
   useEffect(() => {
     if (!selectedSession) return;
