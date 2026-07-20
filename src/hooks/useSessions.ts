@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAwardXP } from "@/hooks/useAwardXP";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { API_BASE_URL } from "@/config/api";
 // UI tab labels don't match the DB's session status values, so each tab
 // must be translated to the status (or statuses) it represents before filtering.
@@ -13,7 +13,7 @@ const TAB_TO_STATUS: Record<string, string[]> = {
 
 export function useSessions(user: any) {
   const { mutate: awardXP } = useAwardXP();
-  const { toast } = useToast();
+  
 
   const [sessions, setSessions] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
@@ -128,11 +128,9 @@ export function useSessions(user: any) {
 
       if (error) {
         console.error("Failed to fetch session messages:", error);
-        toast({
-          title: "Failed to load messages",
-          description: "Could not load session messages. Please try again.",
-          variant: "destructive",
-        });
+        toast.error("Failed to load messages", {
+  description: "Could not load session messages. Please try again."
+});
       } else {
         setMessages(data || []);
       }
@@ -253,12 +251,16 @@ export function useSessions(user: any) {
       const { error } = await supabase.rpc("join_session", { p_session_id: sessionId });
       if (error) {
         if (error.message.includes("Session is full")) {
-          toast({ title: "Session Full", description: "This session has reached its seat limit.", variant: "destructive" });
+          toast.error("Session Full", {
+  description: "This session has reached its seat limit."
+});
         } else {
           throw error;
         }
       } else {
-        toast({ title: "Success! 🎉", description: "You have joined the session." });
+        toast("Success! 🎉", {
+  description: "You have joined the session."
+});
 
         // Only award XP here, after join_session has actually succeeded and
         // confirmed the user as a participant. This is the single source of
@@ -270,7 +272,9 @@ export function useSessions(user: any) {
         }
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Failed to join session.", variant: "destructive" });
+      toast.error("Error", {
+  description: err.message || "Failed to join session."
+});
     }
   }, [user, awardXP, toast]);
 
@@ -303,7 +307,9 @@ export function useSessions(user: any) {
 
       if (error) throw error;
     } catch (err: any) {
-      toast({ title: "Failed to send message", description: err.message || "An unexpected error occurred.", variant: "destructive" });
+      toast.error("Failed to send message", {
+  description: err.message || "An unexpected error occurred."
+});
     }
   }, [selectedSession, user, toast]);
 
