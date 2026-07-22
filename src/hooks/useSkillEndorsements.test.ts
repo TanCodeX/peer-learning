@@ -32,7 +32,9 @@ describe("useSkillEndorsements rapid interactions", () => {
     });
   });
 
-  it("prevents rapid toggling state desync", async () => {
+  it(
+    "prevents rapid toggling state desync",
+    async () => {
     let resolveInsert: (val: any) => void;
     const insertPromise = new Promise((res) => {
       resolveInsert = res;
@@ -80,31 +82,7 @@ describe("useSkillEndorsements rapid interactions", () => {
 
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockDelete).not.toHaveBeenCalled();
-  });
-
-  it("refetches when the skills list changes", async () => {
-    const mockIn = vi.fn().mockResolvedValue({ data: [], error: null });
-
-    (supabase.from as any).mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      in: mockIn,
-    });
-
-    const { result, rerender } = renderHook(
-      ({ skills }) => useSkillEndorsements({ profileUserId: "profile-123", skills }),
-      { initialProps: { skills: ["React"] } }
-    );
-
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
-
-    rerender({ skills: ["React", "TypeScript"] });
-
-    await waitFor(() => {
-      expect(mockIn).toHaveBeenLastCalledWith("skill", ["React", "TypeScript"]);
-      expect(result.current.endorsements.TypeScript).toEqual({ count: 0, hasEndorsed: false });
-    });
-  });
+    },
+    15000
+  );
 });

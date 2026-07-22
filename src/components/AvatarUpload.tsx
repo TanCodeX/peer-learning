@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { API_BASE_URL } from "@/config/api";
 
 type AvatarUploadProps = {
   currentAvatarUrl: string;
@@ -36,10 +37,9 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       return;
     }
 
-    // Client-side pre-check for 50MB (though backend enforces it as well)
-    if (file.size > 50 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       onUploadError(
-        "Image is too large. Please upload an image smaller than 50MB."
+        "Image is too large. Please upload an image smaller than 5MB."
       );
       return;
     }
@@ -83,7 +83,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
 
         if (res.status === 413) {
           throw new Error(
-            "Image is too large. Please upload an image smaller than 50MB."
+            "Image is too large. Please upload an image smaller than 5MB."
           );
         }
 

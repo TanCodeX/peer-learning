@@ -23,6 +23,18 @@ export function useSessions(user: any) {
 
   const [activities, setActivities] = useState<any[]>([]);
   const [userStatus, setUserStatus] = useState("Active");
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const isFocusModeRef = useRef(isFocusMode);
+
+  useEffect(() => {
+    isFocusModeRef.current = isFocusMode;
+    if (isFocusMode) {
+      setUserStatus("Busy");
+    } else {
+      setUserStatus("Active");
+    }
+  }, [isFocusMode]);
+
   const [typingUser, setTypingUser] = useState<string | null>(null);
   const [participantCount, setParticipantCount] = useState(1);
   const [isVideoActive, setIsVideoActive] = useState(false);
@@ -58,11 +70,14 @@ export function useSessions(user: any) {
   const filteredSessions = useMemo(() => {
     let filtered = sessions;
 
+    // Derive allowed statuses from the single source of truth: TAB_TO_STATUS
     const allowedStatuses = TAB_TO_STATUS[selectedTab] || [];
+
     filtered = filtered.filter((s) =>
       allowedStatuses.includes(s.status?.toLowerCase())
     );
 
+    // Apply search if present
     if (search) {
       filtered = filtered.filter(
         (s) =>
@@ -115,15 +130,12 @@ export function useSessions(user: any) {
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Failed to fetch session messages:", error);
-        toast({
-          title: "Failed to load messages",
-          description: "Could not load session messages. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        setMessages(data || []);
+        console.error("Failed to fetch messages:", error);
+        toast({ title: "Error", description: "Failed to load messages.", variant: "destructive" });
+        return;
       }
+
+      setMessages(data || []);
     };
 
     fetchMessages();
@@ -142,6 +154,11 @@ export function useSessions(user: any) {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `session_id=eq.${selectedSession.id}` }, (payload: any) => {
         if (payload.new.session_id === selectedSession.id) {
           setMessages((prev) => [...prev, payload.new]);
+        }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: `session_id=eq.${selectedSession.id}` }, (payload: any) => {
+        if (payload.new.session_id === selectedSession.id) {
+          setMessages((prev) => prev.map(msg => msg.id === payload.new.id ? payload.new : msg));
         }
       })
       .on("presence", { event: "sync" }, () => {
@@ -176,7 +193,7 @@ export function useSessions(user: any) {
     return () => {
       supabase.removeChannel(roomChannel);
     };
-  }, [selectedSession, user]);
+  }, [selectedSession, user, toast]);
 
   useEffect(() => {
     if (!selectedSession) return;
@@ -197,10 +214,13 @@ export function useSessions(user: any) {
 
   useEffect(() => {
     const handleActivity = () => {
+      if (isFocusModeRef.current) return;
       setUserStatus("Active");
       clearTimeout(idleTimerRef.current);
       idleTimerRef.current = setTimeout(() => {
-        setUserStatus("Idle");
+        if (!isFocusModeRef.current) {
+          setUserStatus("Idle");
+        }
       }, 15000);
     };
 
@@ -292,6 +312,28 @@ export function useSessions(user: any) {
     }
   }, [selectedSession, user, toast]);
 
+  const togglePinMessage = useCallback(async (messageId: string, currentPinnedState: boolean) => {
+    if (!selectedSession) return;
+    try {
+      const { error } = await (supabase as any)
+        .from("messages")
+        .update({ is_pinned: !currentPinnedState })
+        .eq("id", messageId)
+        .eq("session_id", selectedSession.id);
+        
+      if (error) throw error;
+      
+      // Optimistic UI update
+      setMessages((prev) => prev.map(msg => msg.id === messageId ? { ...msg, is_pinned: !currentPinnedState } : msg));
+      
+      if (!currentPinnedState) {
+        toast({ title: "Message Pinned", description: "This message is now pinned to the top of the chat." });
+      }
+    } catch (err: any) {
+      toast({ title: "Failed to update pin status", description: err.message || "An unexpected error occurred.", variant: "destructive" });
+    }
+  }, [selectedSession, toast]);
+
   const sendTypingEvent = useCallback(() => {
     if (channelRef.current) {
       channelRef.current.send({
@@ -370,8 +412,11 @@ export function useSessions(user: any) {
     sessionSummary,
     summaryLoading,
     studyTime,
+    isFocusMode,
+    setIsFocusMode,
     handleJoinSession,
     sendMessage,
+    togglePinMessage,
     sendTypingEvent,
     handleLeaveVideo,
     handleJoinVideo,
