@@ -36,10 +36,36 @@ export function useSkillEndorsements({
   const pendingSkillsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data.user?.id ?? null);
-      setAuthReady(true);
-    }).catch(console.error);
+    let mounted = true;
+
+    supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setCurrentUserId(data.user?.id ?? null);
+        setAuthReady(true);
+      })
+      .catch((err) => {
+        console.error("[useSkillEndorsements] getUser error:", err);
+        if (mounted) setAuthReady(true);
+      });
+
+    // Guard for environments/mocks where this API is missing
+    const authApi = supabase.auth as {
+      onAuthStateChange?: (cb: (_event: string, session: any) => void) => {
+        data?: { subscription?: { unsubscribe: () => void } };
+      };
+    };
+
+    const sub = authApi.onAuthStateChange?.((_event, session) => {
+      if (!mounted) return;
+      setCurrentUserId(session?.user?.id ?? null);
+    });
+
+    return () => {
+      mounted = false;
+      sub?.data?.subscription?.unsubscribe?.();
+    };
   }, []);
 
   const fetchEndorsements = useCallback(async () => {
