@@ -621,9 +621,7 @@ export type Database = {
           description: string | null
           id: number
           scheduled_at: string | null
-          /** duration_minutes – NEW column added by session scheduling migration */
           duration_minutes: number
-          /** status values: 'scheduled' | 'live' | 'ended' */
           status: string
           student_id: string | null
           mentor_id: string | null
