@@ -37,7 +37,6 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       return;
     }
 
-    // Client-side pre-check for 5MB
     if (file.size > 5 * 1024 * 1024) {
       onUploadError(
         "Image is too large. Please upload an image smaller than 5MB."
