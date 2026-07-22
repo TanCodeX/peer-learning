@@ -127,15 +127,12 @@ export function useSessions(user: any) {
         .order("created_at", { ascending: true });
 
       if (error) {
-        console.error("Failed to fetch session messages:", error);
-        toast({
-          title: "Failed to load messages",
-          description: "Could not load session messages. Please try again.",
-          variant: "destructive",
-        });
-      } else {
-        setMessages(data || []);
+        console.error("Failed to fetch messages:", error);
+        toast({ title: "Error", description: "Failed to load messages.", variant: "destructive" });
+        return;
       }
+
+      setMessages(data || []);
     };
 
     fetchMessages();
