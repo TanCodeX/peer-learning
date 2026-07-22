@@ -70,11 +70,14 @@ export function useSessions(user: any) {
   const filteredSessions = useMemo(() => {
     let filtered = sessions;
 
+    // Derive allowed statuses from the single source of truth: TAB_TO_STATUS
     const allowedStatuses = TAB_TO_STATUS[selectedTab] || [];
+
     filtered = filtered.filter((s) =>
       allowedStatuses.includes(s.status?.toLowerCase())
     );
 
+    // Apply search if present
     if (search) {
       filtered = filtered.filter(
         (s) =>
@@ -134,6 +137,8 @@ export function useSessions(user: any) {
       } else {
         setMessages(data || []);
       }
+
+      setMessages(data || []);
     };
 
     fetchMessages();
@@ -152,6 +157,11 @@ export function useSessions(user: any) {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `session_id=eq.${selectedSession.id}` }, (payload: any) => {
         if (payload.new.session_id === selectedSession.id) {
           setMessages((prev) => [...prev, payload.new]);
+        }
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages", filter: `session_id=eq.${selectedSession.id}` }, (payload: any) => {
+        if (payload.new.session_id === selectedSession.id) {
+          setMessages((prev) => prev.map(msg => msg.id === payload.new.id ? payload.new : msg));
         }
       })
       .on("presence", { event: "sync" }, () => {
@@ -313,6 +323,28 @@ export function useSessions(user: any) {
     }
   }, [selectedSession, user]);
 
+  const togglePinMessage = useCallback(async (messageId: string, currentPinnedState: boolean) => {
+    if (!selectedSession) return;
+    try {
+      const { error } = await (supabase as any)
+        .from("messages")
+        .update({ is_pinned: !currentPinnedState })
+        .eq("id", messageId)
+        .eq("session_id", selectedSession.id);
+        
+      if (error) throw error;
+      
+      // Optimistic UI update
+      setMessages((prev) => prev.map(msg => msg.id === messageId ? { ...msg, is_pinned: !currentPinnedState } : msg));
+      
+      if (!currentPinnedState) {
+        toast({ title: "Message Pinned", description: "This message is now pinned to the top of the chat." });
+      }
+    } catch (err: any) {
+      toast({ title: "Failed to update pin status", description: err.message || "An unexpected error occurred.", variant: "destructive" });
+    }
+  }, [selectedSession, toast]);
+
   const sendTypingEvent = useCallback(() => {
     if (channelRef.current) {
       channelRef.current.send({
@@ -395,6 +427,7 @@ export function useSessions(user: any) {
     setIsFocusMode,
     handleJoinSession,
     sendMessage,
+    togglePinMessage,
     sendTypingEvent,
     handleLeaveVideo,
     handleJoinVideo,
